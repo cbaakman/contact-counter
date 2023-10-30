@@ -7,4 +7,4 @@
  * biopython 1.75 : https://biopython.org/
 
 ## running
-./count_all.py <path to contact-chainID_allAtoms> <list of pdb files> <number of simultaneous workers> <output matrix file>
+`./count_all.py <path to contact-chainID_allAtoms exectable> <list of pdb files> <number of simultaneous workers> <output matrix file>`
