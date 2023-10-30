@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import sys
+import logging
 from argparse import ArgumentParser
 from typing import Dict, List
 import subprocess
@@ -13,7 +15,7 @@ from Bio.PDB.Polypeptide import standard_aa_names
 from counter.models.matrix import Matrix
 
 
-path_to_contact_exe = "/home/cbaakman/projects/contact-chainID_allAtoms"
+_log = logging.getLogger(__name__)
 
 
 arg_parser = ArgumentParser()
@@ -78,11 +80,12 @@ class CountThread(Thread):
             for path in self._file_list:
                 self.sum_of_matrices += count_for_one_structure(self._exe_path, path, "M", "P", 5.0, self._device)
         except:
-            self.sum_of_matrices = None
-            raise
+            _log.exception(f"on {path}")
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     args = arg_parser.parse_args()
 
@@ -90,9 +93,11 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         device = torch.device("cuda")
 
+    # read pathnames from file
     with open(args.file_list, 'rt') as f:
         paths = f.read().strip().split('\n')
 
+    # buld multithreads
     file_count = len(paths)
     file_frac = max(1, int(file_count / args.worker_count))
 
@@ -107,6 +112,7 @@ if __name__ == "__main__":
         t.start()
         threads.append(t)
 
+    # count in multithreads
     sum_of_matrices = Matrix(device=device)
     for t in threads:
         t.join()
@@ -115,6 +121,7 @@ if __name__ == "__main__":
     total = sum_of_matrices.sum()
     matrix_dict = sum_of_matrices.to_dict()
 
+    # write matrix to output file
     with open(args.output_file, 'wt') as output_file:
         w = csv.writer(output_file)
 
