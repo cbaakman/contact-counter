@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import os
 import re
 import sys
@@ -7,6 +8,9 @@ import tarfile
 from argparse import ArgumentParser
 
 import pandas
+
+
+_log = logging.getLogger(__name__)
 
 
 arg_parser = ArgumentParser()
@@ -58,6 +62,8 @@ def list_files_under(path: str):
 
 if __name__ == "__main__":
 
+    logging.basicConfig(filename="list-models.log", filemode='w', level=logging.INFO)
+
     args = arg_parser.parse_args()
 
     # read the complex ids from the CSV
@@ -80,4 +86,4 @@ if __name__ == "__main__":
 
                 break
         else:
-            raise FileNotFoundError(f"{args.models_dir}...{id_}.tar")
+            _log.error(f"no file named {id_}.tar under {args.models_dir}")
