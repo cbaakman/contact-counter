@@ -45,7 +45,7 @@ def get_best_pandora_model(tar_path: str) -> str:
 
                 if identity > best_identity:
                     best_identity = identity
-                    best_model_name = os.path.basename(filename)
+                    best_model_name = filename
 
     return best_model_name
 
