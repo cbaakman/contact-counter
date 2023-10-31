@@ -2,12 +2,14 @@
 
 import sys
 import logging
+import tarfile
 from argparse import ArgumentParser
 from typing import Dict, List
 import subprocess
 from threading import Thread
 import csv
 from math import log as ln
+from tempfile import mkstemp
 
 import torch
 from Bio.PDB.Polypeptide import standard_aa_names
@@ -58,6 +60,18 @@ def count_for_one_structure(exe_path: str, pdb_path: str, chain1: str, chain2: s
     return m
 
 
+def extract_file(tar_path: str, file_path: str) -> str:
+    tmp_file, tmp_path = mkstemp()
+    os.close(tmp_file)
+
+    with tarfile.open(tar_path, 'r') as tf:
+        with tf.extractfile(file_path) as f:
+            with open(tmp_path, 'wb') as output:
+                output.write(f.read())
+
+    return tmp_path
+
+
 class CountThread(Thread):
     def __init__(
         self,
@@ -76,11 +90,18 @@ class CountThread(Thread):
         self._exe_path = exe_path
 
     def run(self):
-        try:
-            for path in self._file_list:
-                self.sum_of_matrices += count_for_one_structure(self._exe_path, path, "M", "P", 5.0, self._device)
-        except:
-            _log.exception(f"on {path}")
+        for path in self._file_list:
+            tmp_path = None
+            try:
+                tar_path, pdb_path = path.split(':')
+                tmp_path = extract_file(tar_path, pdb_path)
+
+                self.sum_of_matrices += count_for_one_structure(self._exe_path, tmp_path, "M", "P", 5.0, self._device)
+            except:
+                _log.exception(f"on {path}")
+            finally:
+                if tmp_path is not None:
+                    os.remove(tmp_path)
 
 
 if __name__ == "__main__":
