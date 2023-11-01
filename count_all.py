@@ -154,12 +154,12 @@ if __name__ == "__main__":
         for aai in standard_aa_names:
             row = [aai]
             for aaj in standard_aa_names:
-                p = round(matrix_dict[aai][aaj] / total, 3)
+                p = matrix_dict[aai][aaj] / total
                 if p > 0.0:
                     e = -ln(p)
                 else:
                     e = ""  # empty cell, NaN in pandas
-                row.append(e)
+                row.append(round(e, 3))
 
             w.writerow(row)
 
