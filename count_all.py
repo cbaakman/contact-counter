@@ -157,9 +157,10 @@ if __name__ == "__main__":
                 p = matrix_dict[aai][aaj] / total
                 if p > 0.0:
                     e = -ln(p)
+                    e = round(e, 3)
                 else:
                     e = ""  # empty cell, NaN in pandas
-                row.append(round(e, 3))
+                row.append(e)
 
             w.writerow(row)
 
