@@ -54,8 +54,10 @@ def count_for_one_structure(exe_path: str, pdb_path: str, chain1: str, chain2: s
 
             # if so, count it
             m.count_one(aa1, aa2)
+            m.count_one(aa2, aa1)
 
         # remember which pairs we've already seen
+        # don't count the same pair of residues twice
         res_pairs.add(res_pair)
 
     return m
@@ -152,7 +154,7 @@ if __name__ == "__main__":
         for aai in standard_aa_names:
             row = [aai]
             for aaj in standard_aa_names:
-                p = matrix_dict[aai][aaj] / total
+                p = round(matrix_dict[aai][aaj] / total, 3)
                 if p > 0.0:
                     e = -ln(p)
                 else:
