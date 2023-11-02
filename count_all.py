@@ -43,22 +43,19 @@ def count_for_one_structure(exe_path: str, pdb_path: str, chain1: str, chain2: s
         aa1, _chain1, resnum1, name1, nr1, aa2, _chain2, resnum2, name2, nr2, distance = line.split()
 
         # filter chains involved
-        if _chain1 != chain1 and _chain1 != chain2:
-            continue
-        if _chain2 != chain2 and _chain2 != chain1:
-            continue
+        if (_chain1 == chain1 and _chain2 == chain2) or (_chain2 == chain1 and _chain1 == chain2):
 
-        # see if this residue pair is new
-        res_pair = (chain1, int(resnum1), chain2, int(resnum2))
-        if res_pair not in res_pairs:
+            # see if this residue pair is new
+            res_pair = (chain1, int(resnum1), chain2, int(resnum2))
+            if res_pair not in res_pairs:
 
-            # if so, count it
-            m.count_one(aa1, aa2)
-            m.count_one(aa2, aa1)
+                # if so, count it
+                m.count_one(aa1, aa2)
+                m.count_one(aa2, aa1)
 
-        # remember which pairs we've already seen
-        # don't count the same pair of residues twice
-        res_pairs.add(res_pair)
+            # remember which pairs we've already seen
+            # don't count the same pair of residues twice
+            res_pairs.add(res_pair)
 
     return m
 
