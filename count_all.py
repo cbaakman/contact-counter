@@ -151,7 +151,7 @@ if __name__ == "__main__":
         for aai in standard_aa_names:
             row = [aai]
             for aaj in standard_aa_names:
-                p = matrix_dict[aai][aaj] / total
+                p = (1 + matrix_dict[aai][aaj]) / total
                 if p > 0.0:
                     e = -ln(p)
                 else:
