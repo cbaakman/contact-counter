@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import logging
 import tarfile
@@ -53,8 +54,10 @@ def count_for_one_structure(exe_path: str, pdb_path: str, chain1: str, chain2: s
 
             # if so, count it
             m.count_one(aa1, aa2)
+            m.count_one(aa2, aa1)
 
         # remember which pairs we've already seen
+        # don't count the same pair of residues twice
         res_pairs.add(res_pair)
 
     return m
@@ -154,6 +157,7 @@ if __name__ == "__main__":
                 p = (1 + matrix_dict[aai][aaj]) / total
                 if p > 0.0:
                     e = -ln(p)
+                    e = round(e, 3)
                 else:
                     e = ""  # empty cell, NaN in pandas
                 row.append(e)

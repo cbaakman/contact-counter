@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
+import logging
 import os
 import re
 import sys
 import tarfile
 from argparse import ArgumentParser
-from glob import glob
 
 import pandas
+
+
+_log = logging.getLogger(__name__)
 
 
 arg_parser = ArgumentParser()
@@ -42,22 +45,24 @@ def get_best_pandora_model(tar_path: str) -> str:
 
                 if identity > best_identity:
                     best_identity = identity
-                    best_model_name = os.path.basename(filename)
+                    best_model_name = filename
 
     return best_model_name
 
 
 def list_files_under(path: str):
-
     if os.path.isdir(path):
+        paths = []
         for dirname in os.listdir(path):
-            return list_files_under(os.path.join(path, dirname))
-
+            paths += list_files_under(os.path.join(path, dirname))
+        return paths
     else:
         return [path]
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(filename="list-models.log", filemode='w', level=logging.INFO)
 
     args = arg_parser.parse_args()
 
@@ -76,9 +81,9 @@ if __name__ == "__main__":
                 model_filename = get_best_pandora_model(tar_path)
 
                 # append name of pdb file and name of tar it's in
-                with open(args.output_dir, 'at') as f:
+                with open(args.output_file, 'at') as f:
                     f.write(f"{tar_path}:{model_filename}\n")
 
                 break
         else:
-            raise FileNotFoundError(f"{id_}.tar")
+            _log.error(f"no file named {id_}.tar under {args.models_dir}")
